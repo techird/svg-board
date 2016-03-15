@@ -1,7 +1,7 @@
-React-redux-typescript Starter Kit
+React-Redux-TypeScript Starter Kit
 ==================================
 
-An starter kit for developers to use `react + redux + typescript` easily. This repos also provides an tiny example of how to write business with redux and typescript.
+A starter kit for developers to use `react + redux + typescript` stack easily. This repos also provides an tiny example of how to write business with redux and typescript.
 
 Enjoy it!
 
@@ -24,3 +24,22 @@ Run npm init command to install all dependencies.
 ```sh
 npm run init
 ```
+
+## Development
+
+Run npm dev command to start development. React hot module replacement is enabled!
+
+```sh
+npm run dev
+```
+
+And now you can visit [http://localhost:8081](http://localhost:8081).
+
+## Build
+
+Run npm build command to build final production files.
+
+```sh
+npm run build
+```
+
