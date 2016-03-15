@@ -8,12 +8,11 @@
     "dev": "node ./server/index.js",
     "build": "set NODE_ENV=production && webpack --config webpack/webpack.prod.js"
   },
-  "keywords": [
-
-  ],
+  "keywords": [],
   "author": "techirdliu@gmail.com",
   "license": "ISC",
   "devDependencies": {
+    "express": "^4.13.4",
     "typescript": "^1.8.7",
     "webpack": "^1.12.14"
   },
