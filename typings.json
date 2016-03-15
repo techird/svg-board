@@ -1,0 +1,25 @@
+{
+  "ambientDependencies": {
+    "classnames": "registry:dt/classnames#0.0.0+20150923160543",
+    "express": "registry:dt/express#4.0.0+20160218233549",
+    "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160218233549",
+    "mime": "registry:dt/mime#0.0.0+20151204023458",
+    "node": "registry:dt/node#4.0.0+20160311162451",
+    "react": "registry:dt/react#0.14.0+20160314090524",
+    "react-addons-css-transition-group": "registry:dt/react-addons-css-transition-group#0.14.0+20151118193746",
+    "react-addons-transition-group": "registry:dt/react-addons-transition-group#0.14.0+20160106161637",
+    "react-dom": "registry:dt/react-dom#0.14.0+20160314090524",
+    "redux": "registry:dt/redux#1.0.0+20160201195450",
+    "redux-actions": "registry:dt/redux-actions#0.8.0+20150915051529",
+    "redux-logger": "registry:dt/redux-logger#2.6.0+20160226185156",
+    "redux-thunk": "registry:dt/redux-thunk#2.0.1+20160308210923",
+    "serve-index": "registry:dt/serve-index#1.7.2+20160105023018",
+    "serve-static": "registry:dt/serve-static#0.0.0+20160218233549",
+    "source-map": "registry:dt/source-map#0.0.0+20151201114758",
+    "uglify-js": "registry:dt/uglify-js#2.6.1+20160106153543",
+    "webpack": "registry:dt/webpack#1.12.9+20160125043835"
+  },
+  "dependencies": {
+    "react-redux": "registry:npm/react-redux#4.4.0+20160207114942"
+  }
+}

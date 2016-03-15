@@ -1,0 +1,33 @@
+{
+  "name": "react-redux-typescript-start",
+  "version": "0.1.0",
+  "description": "A starter kit for react + redux + typescript",
+  "main": "index.tsx",
+  "scripts": {
+    "init": "npm install && typings install --ambient",
+    "dev": "node ./server/index.js",
+    "build": "set NODE_ENV=production && webpack --config webpack/webpack.prod.js"
+  },
+  "keywords": [
+
+  ],
+  "author": "techirdliu@gmail.com",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^1.8.7",
+    "webpack": "^1.12.14"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.7.2",
+    "babel-runtime": "^6.6.1",
+    "classname": "0.0.0",
+    "react": "^0.14.7",
+    "react-addons-css-transition-group": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-redux": "^4.4.1",
+    "redux": "^3.3.1",
+    "redux-logger": "^2.6.1",
+    "redux-thunk": "^2.0.1",
+    "ts-node": "^0.6.1"
+  }
+}
