@@ -34,6 +34,7 @@
     "redux-logger": "^2.6.1",
     "redux-thunk": "^2.0.1",
     "serve-index": "^1.7.3",
+    "ts-loader": "^0.8.1",
     "ts-node": "^0.6.1",
     "typescript": "^1.8.7",
     "webpack": "^1.12.14",
