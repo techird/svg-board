@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { CounterAppContainer } from "./modules/counter";
+import { AppContainer } from "./app";
 
-ReactDOM.render(<CounterAppContainer />, document.getElementById("container"));
+ReactDOM.render(<AppContainer />, document.getElementById("container"));

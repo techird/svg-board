@@ -12,9 +12,6 @@ export function serve(port: number) {
         setupWebpackDevelopmentServer(app);
     }
 
-    const staticPath = path.resolve(__dirname, "../static");
-    app.use(express.static(staticPath));
-
     app.listen(port, function (err) {
         if (err) {
             console.error(JSON.stringify(err));
@@ -32,7 +29,7 @@ function setupWebpackDevelopmentServer(app: express.Express) {
     var compiler = webpack(config);
 
     var devMiddleware = require('webpack-dev-middleware')(compiler, {
-        publicPath: config.output.publicPath,
+        publicPath: "/",
         noInfo: true,
         stats: { colors: true },
         poll: true,

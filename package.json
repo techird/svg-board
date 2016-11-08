@@ -41,5 +41,13 @@
     "webpack-dev-middleware": "^1.5.1",
     "webpack-dev-server": "^1.14.1",
     "webpack-hot-middleware": "^2.10.0"
+  },
+  "devDependencies": {
+    "css-loader": "^0.25.0",
+    "html-loader": "^0.4.4",
+    "html-webpack-plugin": "^2.24.1",
+    "less": "^2.7.1",
+    "less-loader": "^2.2.3",
+    "style-loader": "^0.13.1"
   }
 }

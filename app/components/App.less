@@ -1,0 +1,11 @@
+.dock(@top: 0, @right: @top, @bottom: @top, @left: @right) {
+    position: absolute;
+    left: @left;
+    top: @top;
+    right: @right;
+    bottom: @bottom;
+}
+
+#container {
+    .dock;
+}

@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var path = require("path");
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
     entry: ['babel-polyfill', './index.tsx'],
@@ -9,13 +10,17 @@ module.exports = {
             {
                 test: /\.tsx?$/,
                 loader: 'babel-loader!ts-loader'
+            },
+            {
+                test: /\.less$/,
+                loader: 'less'
             }
         ]
     },
-	output: {
+    output: {
         filename: 'index.js',
         path: "./static/"
-	},
+    },
     resolve: {
         extensions: ['', '.jsx', '.js', '.tsx', '.ts']
     },
@@ -24,6 +29,7 @@ module.exports = {
             'process.env': {
                 'NODE_ENV': '"production"'
             }
-        })
+        }),
+        new HtmlWebpackPlugin()
     ]
 };
