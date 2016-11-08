@@ -1,5 +1,5 @@
 {
-  "ambientDependencies": {
+  "globalDependencies": {
     "classnames": "registry:dt/classnames#0.0.0+20150923160543",
     "express": "registry:dt/express#4.0.0+20160218233549",
     "express-serve-static-core": "registry:dt/express-serve-static-core#0.0.0+20160218233549",
