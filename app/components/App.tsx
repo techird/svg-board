@@ -5,7 +5,6 @@ import { bindActionCreators } from "redux";
 import { connect, Provider } from "react-redux";
 
 import { RootState } from "../models";
-import { counterActions } from "../actions/counterActions";
 import { configStore } from "../stores/RootStore";
 
 import { Toolbar } from "./Toolbar";
@@ -14,35 +13,16 @@ import { Stage } from "./Stage";
 
 const store = configStore();
 
-export class AppContainer extends React.Component<any, any> {
+export class App extends React.Component<void, void> {
     render() {
         return (
             <Provider store={store}>
-                <App></App>
+                <div className="svg-board-app">
+                    <Toolbar />
+                    <ObjectBrowser />
+                    <Stage />
+                </div>
             </Provider>
-        );
-    }
-}
-
-export interface RootProps extends RootState {
-    actions?: typeof counterActions;
-}
-
-const mapDispatchToProps = dispatch => ({
-    actions: bindActionCreators(counterActions, dispatch)
-});
-
-@connect(state => state, mapDispatchToProps)
-class App extends React.Component<RootProps, void> {
-    render() {
-        const { actions, counter } = this.props;
-
-        return (
-            <div className="svg-board-app">
-                <Toolbar />
-                <ObjectBrowser />
-                <Stage />
-            </div>
         );
     }
 }
