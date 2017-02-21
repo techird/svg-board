@@ -13,7 +13,7 @@ import { Stage } from "./Stage";
 
 const store = configStore();
 
-export class App extends React.Component<void, void> {
+export class App extends React.Component<any, any> {
     render() {
         return (
             <Provider store={store}>

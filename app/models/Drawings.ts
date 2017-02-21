@@ -33,19 +33,10 @@ export function isLine(drawing: Drawing): drawing is Line {
     return drawing.type == 'line';
 }
 
-const idMap: { [name: string]: number } = {};
-
-function nextId(name: string) {
-    if (!idMap[name]) {
-        idMap[name] = 0;
-    }
-    return name + (++idMap[name]);
-}
-
 let nextStaticPointIndex = 0;
 export function createStaticPoint(x: number, y: number): StaticPoint {
     return {
-        id: nextId('p'),
+        id: 'p',
         type: "static-point",
         x, y
     };
@@ -53,7 +44,7 @@ export function createStaticPoint(x: number, y: number): StaticPoint {
 
 export function createDynamicPoint(from: string, to: string): DynamicPoint {
     return {
-        id: nextId('d'),
+        id: 'd',
         type: "dynamic-point",
         from, to
     };
@@ -61,7 +52,7 @@ export function createDynamicPoint(from: string, to: string): DynamicPoint {
 
 export function createLine(from: string, to: string): Line {
     return {
-        id: nextId('l'),
+        id: 'l',
         type: "line",
         from,
         to

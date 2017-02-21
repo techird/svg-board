@@ -12,16 +12,12 @@
         "noImplicitAny": false,
         "removeComments": true,
         "noLib": false,
-        "preserveConstEnums": true
+        "preserveConstEnums": true,
+        "sourceMap": true
     },
     "exclude": [
-        "node_modules",
-        "typings/browser",
-        "typings/browser.d.ts"
+        "node_modules"
     ],
     "compileOnSave": false,
-    "buildOnSave": false,
-    "atom": {
-        "rewriteTsconfig": false
-    }
+    "buildOnSave": false
 }

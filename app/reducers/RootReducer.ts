@@ -3,7 +3,7 @@ import { Action } from "redux-actions";
 import { RootState, InteractiveMode, Drawing, createStaticPoint, createDynamicPoint, createLine } from "../models";
 import * as ActionType from "../constants/ActionTypes";
 
-function getInteractDrawing(mode: InteractiveMode, params: any[][]): Drawing {
+function getInteractDrawing(mode: InteractiveMode, params: any[]): Drawing {
     const creationMap = {
         'static-point': createStaticPoint,
         'dynamic-point': createDynamicPoint,
@@ -16,8 +16,22 @@ function getInteractDrawing(mode: InteractiveMode, params: any[][]): Drawing {
     return null;
 }
 
-export function RootReducer(rootState: RootState, action: Action) {
+const STORAGE_KEY = 'lastDrawingState';
+
+export function RootReducer(rootState: RootState, action: Action<any>) {
+    if (!rootState) {
+        try {
+            rootState = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        } catch (e) {
+            rootState = null;
+        }
+    }
     rootState = rootState || {
+        idMap: {
+            p: 0,
+            d: 0,
+            l: 0
+        },
         interactiveMode: 'none',
         interactiveParams: [],
         tween: 0.5,
@@ -25,7 +39,7 @@ export function RootReducer(rootState: RootState, action: Action) {
         drawingList: []
     };
 
-    let { interactiveMode, interactiveParams, tween, activeDrawingId, drawingList } = rootState;
+    let { interactiveMode, interactiveParams, tween, activeDrawingId, drawingList, idMap } = rootState;
 
     switch (action.type) {
 
@@ -38,6 +52,7 @@ export function RootReducer(rootState: RootState, action: Action) {
             interactiveParams = [...interactiveParams, ...action.payload];
             const drawing = getInteractDrawing(interactiveMode, interactiveParams);
             if (drawing) {
+                drawing.id += ++idMap[drawing.id];
                 drawingList = [...drawingList, drawing];
                 interactiveParams = [];
                 interactiveMode = "none";
@@ -66,5 +81,7 @@ export function RootReducer(rootState: RootState, action: Action) {
             break;
     }
 
-    return { interactiveMode, interactiveParams, tween, activeDrawingId, drawingList };
+    const nextState = { interactiveMode, interactiveParams, tween, activeDrawingId, drawingList, idMap };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
+    return nextState;
 };

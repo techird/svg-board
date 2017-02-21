@@ -2,6 +2,8 @@ import * as path from "path";
 import * as express from "express";
 import * as webpack from "webpack";
 import * as serveIndex from "serve-index";
+import * as WebPackDevMiddleware from "webpack-dev-middleware";
+import * as WebPackHotMiddleware from "webpack-hot-middleware";
 
 export function serve(port: number) {
     port = process.env.PORT || 8081
@@ -25,19 +27,17 @@ export function serve(port: number) {
 }
 
 function setupWebpackDevelopmentServer(app: express.Express) {
-    var config = require('../webpack/webpack.config');
+    var config = require('../webpack.config');
     var compiler = webpack(config);
 
-    var devMiddleware = require('webpack-dev-middleware')(compiler, {
+    var devMiddleware = WebPackDevMiddleware(compiler, {
         publicPath: "/",
         noInfo: true,
         stats: { colors: true },
-        poll: true,
-        quiet: false,
-        reload: true
+        quiet: false
     });
 
-    var hotMiddleware = require('webpack-hot-middleware')(compiler, { reload: true });
+    var hotMiddleware = WebPackHotMiddleware(compiler);
 
     app.use(devMiddleware);
     app.use(hotMiddleware);

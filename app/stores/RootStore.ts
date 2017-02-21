@@ -1,14 +1,16 @@
-import { RootReducer } from "../reducers/RootReducer";
-import { createStore } from "../helpers/createStore";
+///<reference types="webpack-env" />
+
+import * as RootReducerModule from "../reducers/RootReducer";
+import { createStore } from "./createStore";
 
 export function configStore() {
 
-    const store = createStore(RootReducer);
+    const store = createStore(RootReducerModule.RootReducer);
 
     // hot reloading
-    if (typeof module !== "undefined" && module.hot) {
+    if (module.hot) {
         module.hot.accept("../reducers/RootReducer", () => {
-            store.replaceReducer(require("../reducers/RootReducer").RootReducer);
+            store.replaceReducer(require<typeof RootReducerModule>("../reducers/RootReducer").RootReducer);
         });
     }
 

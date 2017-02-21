@@ -1,4 +1,4 @@
-import { Dispatch } from "redux";
+import { Dispatch, Action } from "redux";
 import * as ActionTypes from "../constants/ActionTypes";
 import { 
     Drawing, 
@@ -10,8 +10,6 @@ import {
     createStaticPoint,
     RootState 
 } from "../models";
-
-type Thunk = (dispatch: Dispatch, getState: () => RootState) => any;
 
 export const interactActions = {
     start(mode: InteractiveMode) {

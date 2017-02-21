@@ -2,11 +2,10 @@ var webpack = require('webpack');
 var path = require("path");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
-var commonEntry = ['webpack-hot-middleware/client?path=http://localhost:8081/__webpack_hmr', 'babel-polyfill'];
+var commonEntry = ['react-hot-loader/patch', 'webpack-hot-middleware/client?path=http://localhost:8081/__webpack_hmr'];
 
 module.exports = {
     devtool: 'sourcemap',
-    debug: true,
     entry: {
         'index': commonEntry.concat(['./index.tsx']),
     },
@@ -15,23 +14,22 @@ module.exports = {
         loaders: [
             {
                 test: /\.tsx?$/,
-                loaders: ['babel-loader', 'ts-loader']
+                loaders: ['react-hot-loader/webpack', 'ts-loader']
             },
             {
                 test: /\.less$/,
-                loader: 'style!css!less'
+                loader: ['style-loader', 'css-loader', 'less-loader']
             },
             {
                 test: /\.html$/,
-                loader: 'html'
+                loader: ['html-loader']
             }
         ]
     },
     output: {
         filename: '[name].js',
         path: __dirname + "/static/",
-        publicPath: "/",
-        include: __dirname
+        publicPath: "/"
     },
     plugins: [
         new webpack.HotModuleReplacementPlugin(),
@@ -44,6 +42,6 @@ module.exports = {
         })
     ],
     resolve: {
-        extensions: ['', '.jsx', '.js', '.tsx', '.ts']
+        extensions: ['.jsx', '.js', '.tsx', '.ts']
     }
 };

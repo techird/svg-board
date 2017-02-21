@@ -19,7 +19,7 @@ interface ObjectListProps extends RootState {
         };
     }
 )
-export class ObjectList extends React.Component<ObjectListProps, any> {
+export class ObjectList extends React.Component<Partial<ObjectListProps>, any> {
     render() {
         return (
             <div className="object-list">
@@ -31,7 +31,7 @@ export class ObjectList extends React.Component<ObjectListProps, any> {
                                 <i className="icon"></i>
                                 <span className="id">{drawing.id}</span>
                                 { isStaticPoint(drawing) &&
-                                    <span className="note">({drawing.x}, {drawing.y})</span>
+                                    <span className="note">({drawing.x.toFixed(0)}, {drawing.y.toFixed(0)})</span>
                                 }
                                 { isLine(drawing) || isDynamicPoint(drawing) &&
                                     <span className="note">({drawing.from}, {drawing.to})</span>

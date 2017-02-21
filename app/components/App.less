@@ -94,7 +94,13 @@
                         font-style: normal;
                     }
                 }
-
+                &.dynamic-point .icon {
+                    border-radius: 100%;
+                    background: red;
+                    &:after {
+                        content: '动';
+                    }
+                }
             }
         }
     }
@@ -108,26 +114,56 @@
     -webkit-user-select: none;
 }
 
+.hover-scale {
+    transition: transform ease-out .1s;
+    &:hover {
+        transform: scale(1.5);
+    }
+}
+
 .stage {
     user-select: none;
     -webkit-user-select: none;
 
     text {
         font-size: 12px;
-        color: #999;
+        fill: #666;
     }
 
-    circle {
-        transition: transform ease-out .1s;
-        &:hover {
-            transform: scale(1.5);
-        }
-        &.static-point {
+    .static-point {
+        circle {
+            .hover-scale;
             fill: #666;
             cursor: move;
         }
-        &.dynamic-point {
+        &.interactive {
+            circle {
+                fill: darkorange;
+            }
+            text {
+                fill: darkorange;
+            }
+        }
+    }
+
+    .dynamic-point {
+        circle {
+            .hover-scale;
             fill: red;
         }
+        path {
+            stroke: gray;
+            fill: none;
+        }
+    }
+
+    .line {
+        line {
+            stroke: lightgreen;
+        }
+    }
+
+    .interactive-point {
+        pointer-events: none;
     }
 }

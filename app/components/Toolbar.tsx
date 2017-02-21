@@ -18,7 +18,7 @@ interface ToobarProps extends RootState {
         };
     }
 )
-export class Toolbar extends React.Component<ToobarProps, any> {
+export class Toolbar extends React.Component<Partial<ToobarProps>, any> {
     state = {
         playing: false
     }

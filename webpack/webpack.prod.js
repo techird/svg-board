@@ -22,7 +22,7 @@ module.exports = {
         path: "./static/"
     },
     resolve: {
-        extensions: ['', '.jsx', '.js', '.tsx', '.ts']
+        extensions: ['.jsx', '.js', '.tsx', '.ts']
     },
     plugins: [
         new webpack.DefinePlugin({
