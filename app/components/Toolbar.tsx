@@ -27,12 +27,29 @@ export class Toolbar extends React.Component<Partial<ToobarProps>, any> {
         const { interactiveMode: mode, interactActions: actions, tween } = this.props;
         return (
             <div className="toolbar">
-                <button disabled={mode == "static-point"} onClick={() => actions.start('static-point')}>端点</button>
-                <button disabled={mode == "dynamic-point"} onClick={() => actions.start('dynamic-point')}>补间点</button>
-                <button disabled={mode == "line"} onClick={() => actions.start('line')}>线段</button>
-                <button>路径</button>
-                <button onClick={() => this.togglePlay()}>{this.state.playing ? "暂停" : "播放"}</button>
-                <input type="range" min="0" max="1" step="0.01" value={tween.toString()} onChange={e => actions.updateTween(+e.target['value'])} />{tween.toFixed(2)}
+                { mode == 'none' &&
+                    <div>
+                        <button onClick={() => actions.start('static-point')}>端点</button>
+                        <button onClick={() => actions.start('dynamic-point')}>补间点</button>
+                        <button onClick={() => actions.start('line')}>线段</button>
+                        <button onClick={() => { actions.start('path'); actions.next('M 0 0') }}>路径</button>
+                        <button onClick={() => this.togglePlay()}>{this.state.playing ? "暂停" : "播放"}</button>
+                        <input type="range" min="0" max="1" step="0.01" value={tween.toString()} onChange={e => actions.updateTween(+e.target['value'])} />{tween.toFixed(2)}
+                        <label>
+                            <input type="checkbox" checked={this.props.showAllTrack} onChange={e => this.props.interactActions.showAllTrack(!this.props.showAllTrack)} />
+                            显示所有补间点轨迹
+                        </label>
+                    </div>
+                }
+                { mode == 'static-point' &&
+                    <div>在画布上点击生成可拖动的点 <button onClick={() => actions.start('none')}>取消</button></div>
+                }
+                { mode == 'dynamic-point' &&
+                    <div>选择画布上的两个点创建其补间点 <button onClick={() => actions.start('none')}>取消</button></div>
+                }
+                { mode == 'line' &&
+                    <div>选择画布上的两个点创建线段 <button onClick={() => actions.start('none')}>取消</button></div>
+                }
             </div>
         );
     }

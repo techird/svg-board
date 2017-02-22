@@ -1,13 +1,14 @@
 import { combineReducers } from "redux";
 import { Action } from "redux-actions";
-import { RootState, InteractiveMode, Drawing, createStaticPoint, createDynamicPoint, createLine } from "../models";
+import { RootState, InteractiveMode, Drawing, createStaticPoint, createDynamicPoint, createLine, createPath } from "../models";
 import * as ActionType from "../constants/ActionTypes";
 
 function getInteractDrawing(mode: InteractiveMode, params: any[]): Drawing {
     const creationMap = {
         'static-point': createStaticPoint,
         'dynamic-point': createDynamicPoint,
-        'line': createLine
+        'line': createLine,
+        'path': createPath
     };
 
     if (creationMap[mode] && params.length >= creationMap[mode].length) {
@@ -30,16 +31,18 @@ export function RootReducer(rootState: RootState, action: Action<any>) {
         idMap: {
             p: 0,
             d: 0,
-            l: 0
+            l: 0,
+            v: 0
         },
         interactiveMode: 'none',
         interactiveParams: [],
         tween: 0.5,
-        activeDrawingId: null,
-        drawingList: []
+        selectedDrawingId: null,
+        drawingList: [],
+        showAllTrack: false
     };
 
-    let { interactiveMode, interactiveParams, tween, activeDrawingId, drawingList, idMap } = rootState;
+    let { interactiveMode, interactiveParams, tween, selectedDrawingId, drawingList, idMap, showAllTrack } = rootState;
 
     switch (action.type) {
 
@@ -56,32 +59,35 @@ export function RootReducer(rootState: RootState, action: Action<any>) {
                 drawingList = [...drawingList, drawing];
                 interactiveParams = [];
                 interactiveMode = "none";
-                activeDrawingId = drawing.id;
+                selectedDrawingId = drawing.id;
             }
             break;
 
-        case ActionType.ACTIVE_DRAWING:
-            activeDrawingId = action.payload;
+        case ActionType.SELECT_DRAWING:
+            selectedDrawingId = action.payload;
             break;
 
         case ActionType.UPDATE_DRAWING:
-            if (activeDrawingId) {
-                const activeDrawingIndex = drawingList.findIndex(x => x.id == activeDrawingId);
-                if (activeDrawingIndex > -1) {
-                    let activeDrawing = drawingList[activeDrawingIndex];
-                    activeDrawing = Object.assign({}, activeDrawing, action.payload);
-                    drawingList.splice(activeDrawingIndex, 1, activeDrawing);
-                    drawingList = drawingList.slice();
-                }
+            const updateDrawing = action.payload as Drawing;
+            const updateDrawingIndex = drawingList.findIndex(x => x.id == updateDrawing.id);
+            if (updateDrawingIndex > -1) {
+                let targetDrawing = drawingList[updateDrawingIndex];
+                targetDrawing = Object.assign({}, targetDrawing, updateDrawing);
+                drawingList.splice(updateDrawingIndex, 1, targetDrawing);
+                drawingList = drawingList.slice();
             }
             break;
         
         case ActionType.UPDATE_TWEEN:
             tween = action.payload;
             break;
+
+        case ActionType.SHOW_ALL_TRACK:
+            showAllTrack = action.payload;
+            break;
     }
 
-    const nextState = { interactiveMode, interactiveParams, tween, activeDrawingId, drawingList, idMap };
+    const nextState = { interactiveMode, interactiveParams, tween, selectedDrawingId, drawingList, idMap, showAllTrack };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(nextState));
     return nextState;
 };

@@ -26,17 +26,17 @@ export const interactActions = {
         }
     },
 
-    activeDrawing(drawingId: string) {
+    selectDrawing(drawingId: string) {
         return {
-            type: ActionTypes.ACTIVE_DRAWING,
+            type: ActionTypes.SELECT_DRAWING,
             payload: drawingId
         }
     },
 
-    updateDrawing(update) {
+    updateDrawing(drawing: Drawing) {
         return {
             type: ActionTypes.UPDATE_DRAWING,
-            payload: update
+            payload: drawing
         }
     },
 
@@ -44,6 +44,13 @@ export const interactActions = {
         return {
             type: ActionTypes.UPDATE_TWEEN,
             payload: tween
+        };
+    },
+
+    showAllTrack(yes: boolean) {
+        return {
+            type: ActionTypes.SHOW_ALL_TRACK,
+            payload: yes
         };
     }
 };

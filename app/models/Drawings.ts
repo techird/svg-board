@@ -22,15 +22,19 @@ export interface Path extends Drawing {
 }
 
 export function isStaticPoint(drawing: Drawing): drawing is StaticPoint {
-    return drawing.type == 'static-point';
+    return drawing && drawing.type == 'static-point';
 }
 
 export function isDynamicPoint(drawing: Drawing): drawing is DynamicPoint {
-    return drawing.type == 'dynamic-point';
+    return drawing && drawing.type == 'dynamic-point';
 }
 
 export function isLine(drawing: Drawing): drawing is Line {
-    return drawing.type == 'line';
+    return drawing && drawing.type == 'line';
+}
+
+export function isPath(drawing: Drawing): drawing is Path {
+    return drawing && drawing.type == 'path';
 }
 
 let nextStaticPointIndex = 0;
@@ -56,5 +60,13 @@ export function createLine(from: string, to: string): Line {
         type: "line",
         from,
         to
+    };
+}
+
+export function createPath(data: string) {
+    return {
+        id: 'v',
+        type: "path",
+        data
     };
 }

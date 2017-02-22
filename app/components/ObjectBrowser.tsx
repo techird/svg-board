@@ -7,7 +7,6 @@ export class ObjectBrowser extends React.Component<any, any> {
         return (
             <div className="object-browser">
                 <ObjectList />
-                <ObjectProperty />
             </div>
         );
     }

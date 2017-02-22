@@ -11,6 +11,7 @@
     user-select: none;
     -webkit-user-select: none;
     font-family: Consolas, Microsoft Yahei;
+    font-size: 12px;
 }
 
 .svg-board-app {
@@ -18,7 +19,7 @@
     background: #f6f6f6;
 }
 
-.toolbar, .object-browser {
+.toolbar, .object-browser, .object-property {
     padding: 10px;
     background: #EEEEF2;
     border: 1px solid #9B9FB9;
@@ -74,6 +75,10 @@
                 &:hover {
                     background: lighten(#007ACC, 50%);
                 }
+                &.selected {
+                    background: #007ACC;
+                    color: white;
+                }
                 .icon, .id, .note {
                     display: inline-block;
                     vertical-align: middle;
@@ -96,11 +101,42 @@
                 }
                 &.dynamic-point .icon {
                     border-radius: 100%;
-                    background: red;
+                    background: orange;
                     &:after {
                         content: '动';
                     }
                 }
+                &.path .icon {
+                    background: green;
+                    border-radius: 5px;
+                    &:after {
+                        content: '路';
+                    }
+                }
+            }
+        }
+    }
+}
+
+.object-property {
+    .dock(auto, 10px, 10px, 180px);
+    border-left: 10px solid #007ACC;
+    height: 50px;
+    line-height: 25px;
+    z-index: 1;
+
+    .path-wrapper {
+        .dock(10px);
+        textarea {
+            box-sizing: border-box;
+            width: 100%;
+            height: 25px;
+            line-height: 24px;
+            resize: none;
+            font-size: 16px;
+            padding: 0 5px;
+            &.error {
+                color: red;
             }
         }
     }
@@ -109,7 +145,7 @@
 .stage-container {
     border: 1px solid #9B9FB9;
     background: white;
-    .dock(65px, 10px, 10px, 180px);
+    .dock(65px, 10px, 90px, 180px);
     user-select: none;
     -webkit-user-select: none;
 }
@@ -128,6 +164,7 @@
     text {
         font-size: 12px;
         fill: #666;
+        pointer-events: none;
     }
 
     .static-point {
@@ -144,22 +181,53 @@
                 fill: darkorange;
             }
         }
+        &.selected {
+            circle, text {
+                fill: red;
+            }
+        }
     }
 
     .dynamic-point {
         circle {
             .hover-scale;
-            fill: red;
+            fill: orange;
         }
         path {
-            stroke: gray;
+            stroke: orange;
+            stroke-width: 2;
+            stroke-dasharray: 5;
             fill: none;
+            opacity: 0;
+            transition: opacity ease 0.3s;
+        }
+        text {
+            fill: orange;
+        }
+        &:hover, &.selected, .show-track {
+            path {
+                opacity: 1;
+            }
+        }
+        &.selected {
+            circle, text {
+                fill: red;
+            }
         }
     }
 
     .line {
         line {
-            stroke: lightgreen;
+            stroke: black;
+            stroke-width: 2;
+        }
+    }
+
+    .path {
+        path {
+            stroke: green;
+            stroke-width: 2;
+            fill: none;
         }
     }
 

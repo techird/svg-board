@@ -1,5 +1,5 @@
 import * as React from "react";
-
+import * as classnames from "classnames";
 import { RootState, isStaticPoint, isDynamicPoint, isLine } from "../models";
 import { interactActions } from "../actions/interactActions";
 import { bindActionCreators } from "redux";
@@ -27,7 +27,8 @@ export class ObjectList extends React.Component<Partial<ObjectListProps>, any> {
                 <ul>
                     { this.props.drawingList.map(drawing => {
                         return (
-                            <li key={drawing.id} className={drawing.type}>
+                            <li key={drawing.id} className={classnames(drawing.type, { selected: drawing.id === this.props.selectedDrawingId })}
+                                onClick={() => this.props.interactActions.selectDrawing(drawing.id)}>
                                 <i className="icon"></i>
                                 <span className="id">{drawing.id}</span>
                                 { isStaticPoint(drawing) &&

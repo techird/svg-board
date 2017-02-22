@@ -4,6 +4,7 @@ import * as webpack from "webpack";
 import * as serveIndex from "serve-index";
 import * as WebPackDevMiddleware from "webpack-dev-middleware";
 import * as WebPackHotMiddleware from "webpack-hot-middleware";
+import open = require("open");
 
 export function serve(port: number) {
     port = process.env.PORT || 8081
@@ -20,7 +21,9 @@ export function serve(port: number) {
             return;
         }
 
-        console.log(`\nDevelopment server served at http://localhost:${port}\n\n`);
+        const url = `http://localhost:${port}`;
+        open(url);
+        console.log(`\nDevelopment server served at ${url}\n\n`);
     });
 
     return app;

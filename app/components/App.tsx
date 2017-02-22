@@ -9,6 +9,7 @@ import { configStore } from "../stores/RootStore";
 
 import { Toolbar } from "./Toolbar";
 import { ObjectBrowser } from "./ObjectBrowser";
+import { ObjectProperty } from "./ObjectProperty";
 import { Stage } from "./Stage";
 
 const store = configStore();
@@ -21,6 +22,7 @@ export class App extends React.Component<any, any> {
                     <Toolbar />
                     <ObjectBrowser />
                     <Stage />
+                    <ObjectProperty />
                 </div>
             </Provider>
         );
