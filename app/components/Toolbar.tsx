@@ -39,6 +39,7 @@ export class Toolbar extends React.Component<Partial<ToobarProps>, any> {
                             <input type="checkbox" checked={this.props.showAllTrack} onChange={e => this.props.interactActions.showAllTrack(!this.props.showAllTrack)} />
                             显示所有补间点轨迹
                         </label>
+                        <button className="clear" onClick={() => confirm('清空画布？') && actions.clear()}>清空</button>
                     </div>
                 }
                 { mode == 'static-point' &&

@@ -19,6 +19,21 @@ function getInteractDrawing(mode: InteractiveMode, params: any[]): Drawing {
 
 const STORAGE_KEY = 'lastDrawingState';
 
+const getInitialState = () => ({
+    idMap: {
+        p: 0,
+        d: 0,
+        l: 0,
+        v: 0
+    },
+    interactiveMode: 'none',
+    interactiveParams: [],
+    tween: 0.5,
+    selectedDrawingId: null,
+    drawingList: [],
+    showAllTrack: false
+} as RootState);
+
 export function RootReducer(rootState: RootState, action: Action<any>) {
     if (!rootState) {
         try {
@@ -27,24 +42,14 @@ export function RootReducer(rootState: RootState, action: Action<any>) {
             rootState = null;
         }
     }
-    rootState = rootState || {
-        idMap: {
-            p: 0,
-            d: 0,
-            l: 0,
-            v: 0
-        },
-        interactiveMode: 'none',
-        interactiveParams: [],
-        tween: 0.5,
-        selectedDrawingId: null,
-        drawingList: [],
-        showAllTrack: false
-    };
+    rootState = rootState || getInitialState();
 
     let { interactiveMode, interactiveParams, tween, selectedDrawingId, drawingList, idMap, showAllTrack } = rootState;
 
     switch (action.type) {
+
+        case ActionType.CLEAR_ALL:
+            return getInitialState();
 
         case ActionType.INTERACT_START:
             interactiveMode = action.payload;

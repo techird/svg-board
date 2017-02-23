@@ -5,3 +5,4 @@ export const UPDATE_DRAWING = "UpdateDrawing";
 export const ADD_DRAWING = "AddDrawing";
 export const UPDATE_TWEEN = "UpdateTween";
 export const SHOW_ALL_TRACK = "ShowAllTrack";
+export const CLEAR_ALL = "ClearAll";

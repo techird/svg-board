@@ -3,17 +3,17 @@ var path = require("path");
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-    entry: ['babel-polyfill', './index.tsx'],
+    entry: [ './index.tsx'],
 
     module: {
         loaders: [
             {
                 test: /\.tsx?$/,
-                loader: 'babel-loader!ts-loader'
+                loader: ['ts-loader']
             },
             {
                 test: /\.less$/,
-                loader: 'less'
+                loader: ['style-loader', 'css-loader', 'less-loader']
             }
         ]
     },
@@ -30,6 +30,8 @@ module.exports = {
                 'NODE_ENV': '"production"'
             }
         }),
-        new HtmlWebpackPlugin()
+        new HtmlWebpackPlugin({
+            template: 'index.html'
+        })
     ]
 };

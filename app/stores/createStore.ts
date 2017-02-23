@@ -1,7 +1,8 @@
 import { createStore as createReduxStore, applyMiddleware, MiddlewareAPI } from "redux";
 import thunk from "redux-thunk";
 import * as createLogger from "redux-logger";
-import { UPDATE_DRAWING, UPDATE_TWEEN } from "../constants/ActionTypes";
+import { UPDATE_DRAWING, UPDATE_TWEEN, ADD_DRAWING } from "../constants/ActionTypes";
+import { createHistory } from "./history";
 
 const middlewares: any[] = [thunk];
 

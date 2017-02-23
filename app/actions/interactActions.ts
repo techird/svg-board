@@ -52,5 +52,9 @@ export const interactActions = {
             type: ActionTypes.SHOW_ALL_TRACK,
             payload: yes
         };
+    },
+
+    clear() {
+        return { type: ActionTypes.CLEAR_ALL };
     }
 };

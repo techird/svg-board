@@ -204,14 +204,14 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         },
         active: (drawing: Drawing) => {
             const { interactiveMode, interactiveParams, interactActions } = this.props;
-            if (drawing) {
-                interactActions.selectDrawing(drawing.id);
-                this.interact.start(drawing);
-            } else {
-                interactActions.selectDrawing(null);
-            }
             switch (interactiveMode) {
-                case "none": break;
+                case "none": 
+                    if (drawing) {
+                        interactActions.selectDrawing(drawing.id);
+                    } else {
+                        interactActions.selectDrawing(null);
+                    }
+                    break;
                 case "static-point":
                     interactActions.next(this.state.mouseX, this.state.mouseY);
                     break;
@@ -234,6 +234,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
                 }
                 this.interact._startDrawing = drawing;
             }
+            this.interact.active(drawing);
             this.interact._hasMoved = false;
             this.interact._started = true;
         },
@@ -248,7 +249,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         },
         end: () => {
             if (this.interact._started && !this.interact._hasMoved) {
-                this.interact.active(this.interact._startDrawing);
+                //this.interact.active(this.interact._startDrawing);
             }
             this.interact._started = false;
             this.interact._draggingPoint = null;

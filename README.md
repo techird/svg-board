@@ -1,36 +1,32 @@
-React-Redux-TypeScript Starter Kit
+SVG Board
 ==================================
 
-A starter kit for developers to use `react + redux + typescript` stack easily. This repos also provides an tiny example of how to write business with redux and typescript.
+SVG experiment tool, built with react + typescript + redux.
 
 Enjoy it!
 
 ## Installation
 
-First step, you should install `typescript`, `typings` and `webpack`.
+First of all, install [node](https://nodejs.org)(>= v6.7) and [yarn](https://yarnpkg.com).
+
+Next, clone the repo below (from this repo or somewhere you folked).
 
 ```sh
-npm install typescript typings webpack -g
+git clone https://github.com/techird/svn-board.git
 ```
 
-Then clone the repo down (from this repo or somewhere you folked).
+Use yarn to install all dependencies.
 
 ```sh
-git clone https://github.com/techird/react-redux-typescript-start.git
-```
-
-Run npm init command to install all dependencies.
-
-```sh
-npm run init
+yarn
 ```
 
 ## Development
 
-Run npm dev command to start development. React hot module replacement is enabled!
+Run dev command to start development. React hot module replacement is enabled!
 
 ```sh
-npm run dev
+yarn run dev
 ```
 
 And now you can visit [http://localhost:8081](http://localhost:8081).
@@ -40,6 +36,6 @@ And now you can visit [http://localhost:8081](http://localhost:8081).
 Run npm build command to build final production files.
 
 ```sh
-npm run build
+yarn run build
 ```
 
