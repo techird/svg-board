@@ -1,4 +1,4 @@
-import { Drawing, isStaticPoint, isDynamicPoint } from "../models";
+import { Drawing } from "../models";
 
 type Tuple = [number, number];
 
@@ -9,11 +9,11 @@ function dig(drawingId: string, drawings: Drawing[], t: number, path: string[] =
 
     const drawing = drawings.find(x => x.id == drawingId);
     if (!drawing) return [0, 0];
-    if (isStaticPoint(drawing)) {
+    if (drawing.type == 'p') {
         path.pop();
         return [drawing.x, drawing.y];
     }
-    if (isDynamicPoint(drawing)) {
+    if (drawing.type == 'd') {
         const [fx, fy] = dig(drawing.from, drawings, t, path);
         const [tx, ty] = dig(drawing.to, drawings, t, path);
         const dx = tx - fx;

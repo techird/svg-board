@@ -1,0 +1,13 @@
+export const INTERACT_START = "INTERACT_START";
+export const INTERACT_NEXT = "INTERACT_NEXT";
+export const SELECT_DRAWING = "SELECT_DRAWING";
+export const UPDATE_DRAWING = "UPDATE_DRAWING";
+export const ADD_DRAWING = "ADD_DRAWING";
+export const UPDATE_TWEEN = "UPDATE_TWEEN";
+export const SHOW_ALL_TRACK = "SHOW_ALL_TRACK";
+export const CLEAR_CANVAS = "CLEAR_CANVAS";
+export const NEW_DOC = "NEW_DOC";
+export const SWITCH_DOC = "SWITCH_DOC";
+export const IMPORT_DOC = "IMPORT_DOC";
+export const DELETE_DOC = "DELETE_DOC";
+export const RENAME_DOC = "RENAME_DOC";

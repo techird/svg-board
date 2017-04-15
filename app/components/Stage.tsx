@@ -1,8 +1,8 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as classnames from "classnames";
-import { RootState, isStaticPoint, isDynamicPoint, isLine, isPath, Drawing, StaticPoint, DynamicPoint, Line, Path } from "../models";
-import { interactActions } from "../actions/interactActions";
+import { Drawing, StaticPoint, DynamicPoint, Line, Path, Doc } from "../models";
+import { RootState, UIState, actions } from "../redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { getPointPosition, resolvePathString } from "../helpers";
@@ -10,17 +10,22 @@ import { getPointPosition, resolvePathString } from "../helpers";
 const MOUSE_BUTTON_LEFT = 0;
 const MOUSE_BUTTON_RIGHT = 2;
 
-interface StageProps extends RootState {
-    interactActions?: typeof interactActions
+interface StageProps {
+    drawings: Drawing[];
+    ui: UIState;
+    actions?: typeof actions.ui;
 }
 
 @connect(
     function mapStateToProps(state: RootState) {
-        return state;
+        return {
+            drawings: state.docs[state.activeDocId].drawingList,
+            ui: state.ui,
+        };
     },
     function mapDispatchToProps(dispatch) {
         return {
-            interactActions: bindActionCreators(interactActions, dispatch)
+            actions: bindActionCreators(actions.ui, dispatch)
         };
     }
 )
@@ -34,16 +39,26 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         offsetLeft: 0,
         offsetTop: 0,
         mouseX: 0,
-        mouseY: 0
+        mouseY: 0,
+        dragging: false,
+    }
+
+    get drawings() {
+        return this.props.drawings;
+    }
+
+    get ui() {
+        return this.props.ui;
+    }
+
+    get actions() {
+        return this.props.actions;
     }
 
     render() {
-        const {
-            interactiveMode,
-            interactiveParams,
-            drawingList,
-            interactActions
-        } = this.props;
+        const drawings = this.drawings;
+        const { mode, params } = this.ui;
+        const { dragging, offsetLeft, offsetTop } = this.state;
 
         return (
             <div 
@@ -55,19 +70,21 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
                 <svg className="stage" width={this.state.width} height={this.state.height} viewBox={this.generateViewBox()}>
                     <defs>
                         <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse">
-                            <rect width="100" height="100" fill="#f0f0f0"></rect>
-                            <rect width="100" height="100" x="100" y="100" fill="#f0f0f0"></rect>
+                            <rect width="100" height="100" fill="#F6F6F6"></rect>
+                            <rect width="100" height="100" x="100" y="100" fill="#F6F6F6"></rect>
                         </pattern>
                     </defs>
 
-                    <rect x="-10000000.5" y="-10000000.5" width="20000000" height="20000000" fill="url(#grid)"></rect>
+                    <g className={classnames("view", { dragging })} transform={`translate(${-offsetLeft}, ${-offsetTop})`}>
+                        <rect x="-10000000.5" y="-10000000.5" width="20000000" height="20000000" fill="url(#grid)"></rect>
 
-                    <path d="M -10000000 0.5 L 10000000 0.5 M 0.5 -10000000 L 0.5 10000000" fill="none" stroke="gray" />
+                        <path d="M -10000000 0.5 L 10000000 0.5 M 0.5 -10000000 L 0.5 10000000" fill="none" stroke="#007ACC" strokeWidth="2" />
 
-                    {interactiveMode == "static-point" &&
-                        <circle className="interactive-point" cx={this.state.mouseX} cy={this.state.mouseY} r="10" fill="orange" opacity="0.5" />
-                    }
-                    {drawingList.slice().reverse().map(drawing => this.renderDrawing(drawing))}
+                        { mode == "p" &&
+                            <circle className="interactive-point" cx={this.state.mouseX} cy={this.state.mouseY} r="10" fill="orange" opacity="0.5" />
+                        }
+                        { drawings.slice().reverse().map(drawing => this.renderDrawing(drawing)) }
+                    </g>
                 </svg>
             </div>
         );
@@ -87,17 +104,17 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
     }  
 
     private renderDrawing(drawing: Drawing) {
-        const className = classnames(drawing.type, { 
+        const className = classnames(`drawing-${drawing.type}`, { 
             interactive: this.interact.isActived(drawing),
-            selected: this.props.selectedDrawingId == drawing.id
+            selected: this.props.ui.selectedDrawingId == drawing.id
         });
         return (
             <g key={drawing.id} className={className}>
             { 
-                isStaticPoint(drawing) ? this.renderStaticPoint(drawing) :
-                isDynamicPoint(drawing) ? this.renderDynamicPoint(drawing) :
-                isLine(drawing) ? this.renderLine(drawing) :
-                isPath(drawing) ? this.renderPath(drawing) : null
+                drawing.type == 'p' ? this.renderStaticPoint(drawing) :
+                drawing.type == 'd' ? this.renderDynamicPoint(drawing) :
+                drawing.type == 'l' ? this.renderLine(drawing) :
+                drawing.type == 'v' ? this.renderPath(drawing) : null
             }
             </g>
         );
@@ -119,7 +136,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
             track = [...track, ...this.getPointPosition(drawing.id, t / 100)];
         }
         return (
-            <g className={classnames({ 'show-track': this.props.showAllTrack })}>
+            <g className={classnames({ 'show-track': this.props.ui.showAllTrack })}>
                 <path d={`M${track.shift()} ${track.shift()} L ${track.join(' ')}`} />
                 <g transform={`translate(${x}, ${y})`}>
                     <circle className="dynamic-point" r="5" onMouseDown={e => this.handleMouseDown(e, drawing)} />
@@ -140,23 +157,22 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
     }
 
     private renderPath(drawing: Path) {
-        const { drawingList, tween } = this.props;
         return (
             <g>
-                <path d={resolvePathString(drawing, drawingList, tween, true) || "M 0 0"} />
+                <path d={resolvePathString(drawing, this.drawings, this.ui.tween, true) || "M 0 0"} />
             </g>
         );
     }
 
-    private getPointPosition(id: string, t = this.props.tween) {
-        return getPointPosition(id, this.props.drawingList, t);
+    private getPointPosition(id: string, t = this.ui.tween) {
+        return getPointPosition(id, this.drawings, t);
     }
 
     private generateViewBox() {
         const width = this.state.width;
         const height = this.state.height;
-        const left = -Math.floor(width / 2) + this.state.offsetLeft;
-        const top = -Math.floor(height / 2) + this.state.offsetTop;
+        const left = -Math.floor(width / 2);
+        const top = -Math.floor(height / 2);
         return [left, top, width, height].join(' ');
     }
 
@@ -169,6 +185,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         dragStart: (x: number, y: number) => {
             this.view.dragging = true
             this.view.dragPosition = { x, y };
+            this.setState({ dragging: true });
         },
         dragMove: (x: number, y: number) => {
             if (!this.view.dragging) return;
@@ -183,6 +200,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         },
         dragEnd: () => {
             this.view.dragging = false;
+            this.setState({ dragging: false });
         },
         reset: () => {
             this.setState({ offsetLeft: 0, offsetTop: 0 });
@@ -194,8 +212,8 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
      */
     private interact = {
         isActived: (drawing: Drawing) => {
-            const { interactiveParams = [] } = this.props;
-            for (let param of interactiveParams) {
+            const { params = [] } = this.ui;
+            for (let param of params) {
                 if (param == drawing.id) {
                     return true;
                 }
@@ -203,22 +221,20 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
             return false;
         },
         active: (drawing: Drawing) => {
-            const { interactiveMode, interactiveParams, interactActions } = this.props;
-            switch (interactiveMode) {
-                case "none": 
-                    if (drawing) {
-                        interactActions.selectDrawing(drawing.id);
-                    } else {
-                        interactActions.selectDrawing(null);
-                    }
+            const { mode, params } = this.ui;
+            const { selectDrawing, next } = this.actions;
+            switch (mode) {
+                case "idle":
+                    selectDrawing(drawing ? drawing.id : null);
                     break;
-                case "static-point":
-                    interactActions.next(this.state.mouseX, this.state.mouseY);
+                case "p":
+                    next(this.state.mouseX, this.state.mouseY);
                     break;
-                case "dynamic-point":
-                case "line":
-                    if (drawing && !this.interact.isActived(drawing) && (isStaticPoint(drawing) || isDynamicPoint(drawing))) {
-                        interactActions.next(drawing.id);
+                case "d":
+                case "l":
+                    const isPoint = drawing && (drawing.type == 'p' || drawing.type == 'd');
+                    if (isPoint && !this.interact.isActived(drawing)) {
+                        next(drawing.id);
                     }
                     break;
             }
@@ -229,7 +245,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         _started: false,
         start: (drawing: Drawing) => {
             if (drawing) {
-                if (isStaticPoint(drawing)) {
+                if (drawing.type == 'p') {
                     this.interact._draggingPoint = drawing;
                 }
                 this.interact._startDrawing = drawing;
@@ -243,7 +259,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
             if (point) {
                 point.x = x;
                 point.y = y;
-                this.props.interactActions.updateDrawing(point);
+                this.props.actions.updateDrawing(point);
             }
             this.interact._hasMoved = true;
         },
@@ -291,9 +307,10 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
      * 计算鼠标位置
      */
     private updateMousePosition(e: React.MouseEvent<Element>) {
+        const { offsetTop, offsetLeft } = this.state;
         const clientPoint = this.svgNode.createSVGPoint();
-        clientPoint.x = e.clientX;
-        clientPoint.y = e.clientY;
+        clientPoint.x = e.clientX + offsetLeft;
+        clientPoint.y = e.clientY + offsetTop;
         const svgPoint = clientPoint.matrixTransform(this.svgNode.getScreenCTM().inverse());
         this.setState({ mouseX: svgPoint.x, mouseY: svgPoint.y });
         return { x: Math.round(svgPoint.x), y: Math.round(svgPoint.y) };

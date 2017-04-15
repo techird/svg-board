@@ -1,21 +1,12 @@
-import { Dispatch, Action } from "redux";
-import * as ActionTypes from "../constants/ActionTypes";
-import { 
-    Drawing, 
-    StaticPoint, 
-    DynamicPoint, 
-    Line, 
-    Path, 
-    InteractiveMode,
-    createStaticPoint,
-    RootState 
-} from "../models";
+import * as ActionTypes from "../ActionTypes";
+import { UIMode } from "../RootState";
+import { Drawing } from "../../models";
 
-export const interactActions = {
-    start(mode: InteractiveMode) {
+export default {
+    start(type: UIMode) {
         return {
             type: ActionTypes.INTERACT_START,
-            payload: mode
+            payload: type
         }
     },
 
@@ -55,6 +46,6 @@ export const interactActions = {
     },
 
     clear() {
-        return { type: ActionTypes.CLEAR_ALL };
+        return { type: ActionTypes.CLEAR_CANVAS };
     }
 };

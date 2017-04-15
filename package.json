@@ -24,12 +24,14 @@
     "classnames": "^2.2.5",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.4.2",
+    "react-click-outside": "^2.3.0",
     "react-dom": "^15.4.2",
     "react-hot-loader": "next",
     "react-redux": "^5.0.2",
     "redux": "^3.6.0",
     "redux-logger": "^2.8.1",
-    "redux-thunk": "^2.2.0"
+    "redux-thunk": "^2.2.0",
+    "uuid": "^3.0.1"
   },
   "devDependencies": {
     "@types/classnames": "0.0.32",
@@ -45,6 +47,7 @@
     "@types/redux-logger": "^2.6.34",
     "@types/serve-index": "^1.7.28",
     "@types/serve-static": "^1.7.31",
+    "@types/uuid": "^2.0.29",
     "@types/webpack": "^2.2.6",
     "@types/webpack-dev-middleware": "^1.9.1",
     "@types/webpack-env": "^1.13.0",
@@ -60,7 +63,8 @@
     "style-loader": "^0.13.1",
     "ts-loader": "^2.0.0",
     "ts-node": "^2.1.0",
-    "typescript": "^2.3.0-dev.20170220",
+    "tslint": "^5.1.0",
+    "typescript": "next",
     "webpack": "^2.2.1",
     "webpack-dev-middleware": "^1.10.1",
     "webpack-dev-server": "^2.4.1",
