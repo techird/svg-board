@@ -1,10 +1,17 @@
 import * as classnames from 'classnames';
 import * as React from "react";
+import * as TransitionGroup from "react-addons-css-transition-group";
 import * as ReactClickOutside from "react-click-outside";
+import ScrollArea from "react-scrollbar";
+import { slide } from "../helpers/"
 import { Doc as DocModel } from "../models";
 import { RootState, actions } from "../redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
+
+
+const DOC_EXTENSION = '.svgboard.json';
+const DOC_VERSION = "1.0.0";
 
 interface Doc extends DocModel {
     id: string;
@@ -14,7 +21,7 @@ interface Doc extends DocModel {
 interface HeaderProps {
     docs: Doc[];
     activeDoc: Doc;
-    actions: typeof actions.doc
+    actions: typeof actions.doc;
 }
 
 @connect(
@@ -42,65 +49,131 @@ interface HeaderProps {
 @ReactClickOutside
 export class Tabs extends React.Component<Partial<HeaderProps>, any> {
     state = {
-        switching: false,
+        menu: false,
     }
+
+    lastClickElement: EventTarget;
 
     render() {
         const { docs, activeDoc, actions } = this.props;
         return (
-            <div className="tabs">
-                <div className="tab-container" onDoubleClick={e => actions.new('新画板')}>
-                    <ul>
-                    { docs.map(doc => (
-                        <DocTab
-                            key={doc.id}
-                            doc={doc} 
-                            onOpen={actions.switch} 
-                            onDelete={actions.delete}
-                            onRename={actions.rename}
-                        />
-                    ))}
-                    </ul>
+            <div className="tabs" onClick={e => this.closeMenu()}>
+                <div className="tab-container"
+                    onClick={e => this.lastClickElement = e.target}
+                    onDoubleClick={e => {
+                        if (e.target != this.lastClickElement) {
+                            return;
+                        }
+                        actions.new('新画板');
+                    }}
+                >
+                    <ScrollArea speed={0.8} smoothScrolling horizontal={true} vertical={false} swapWheelAxes>
+                        <TransitionGroup component="ul" {...slide({ x: 20, y: 0 })}>
+                            { docs.map(doc => (
+                                <DocTab
+                                    key={doc.id}
+                                    doc={doc} 
+                                    only={docs.length == 1}
+                                    onOpen={actions.switch} 
+                                    onDelete={actions.delete}
+                                    onRename={actions.rename}
+                                />
+                            ))}
+                        </TransitionGroup>
+                    </ScrollArea>
                 </div>
-                <div className="doc-action">
-                    <a className="new-doc" onClick={e => actions.new('新画板')}>新建</a>
-                    <a className="import-doc">
-                        <span>导入</span>
-                        <input type="file" onChange={e => this.importDoc(e)} />
+                <a className="doc-menu" onClick={e => this.state.menu || this.openMenu(e)}>
+                    <i className="material-icons">menu</i>
+                </a>
+                <div className={classnames("doc-action", { active: this.state.menu })}>
+                    <a className="new-doc" onClick={e => actions.new('新画板')}>
+                        <i className="material-icons">add</i>
+                        <span>新画布</span>
                     </a>
-                    <a className="export-doc" onClick={e => this.exportDoc(e)}>导出</a>
+                    <a className="import-doc">
+                        <i className="material-icons">folder_open</i>
+                        <span>导入</span>
+                        <input type="file" accept={DOC_EXTENSION} onChange={e => this.importDoc(e)} />
+                    </a>
+                    <a className="export-doc" onClick={e => this.exportDoc(e)}>
+                        <i className="material-icons">file_download</i>
+                        <span>导出</span>
+                    </a>
                 </div>
             </div>
         );
     }
 
-    openDocSwitcher() {
-        this.setState({ switching: true });
+    handleClickOutside() {
+        this.closeMenu();
     }
 
-    switchDoc(docId: string) {
-        if (docId == this.props.activeDoc.id) return;
-        this.props.actions.switch(docId);
-        this.setState({ swithing: false });
+    openMenu(e: React.MouseEvent<HTMLAnchorElement>) {
+        e.stopPropagation();
+        this.setState({ menu: true });
+    }
+
+    closeMenu() {
+        this.setState({ menu: false });
     }
 
     importDoc(e: React.ChangeEvent<HTMLInputElement>) {
         if (e.target.files) {
             const file = e.target.files.item(0);
-            console.log(file);
+            const reader = new FileReader();
+            reader.addEventListener('loadend', () => {
+                let content: any;
+                try {
+                    content = JSON.parse(reader.result);
+                    if (content.version !== DOC_VERSION) {
+                        alert('无法导入该文件，因为文件版本不匹配');
+                    }
+                    if (!content.docs || !content.docs.length) {
+                        alert('无法导入该文件，因为文件没有包含任何文档');
+                    }
+                } catch (e) {
+                    alert('无法导入该文件，因为文件不是正确的 JSON 格式')
+                }
+                const docs: DocModel[] = content.docs;
+                docs.forEach(doc => this.props.actions.import(doc));
+            });
+            reader.readAsText(file, 'utf8');
+            e.target.value = "";
         }
     }
 
     exportDoc(e: React.MouseEvent<HTMLAnchorElement>) {
-        const docs = this.props.docs;
-        const json = JSON.stringify(docs, null, 4);
-        const blob = new Blob([json], { type: 'text/json' });
-        window.open(URL.createObjectURL(blob));
+        const version = DOC_VERSION;
+        const docs = this.props.docs.map((doc) => {
+            const clone = {...doc};
+            delete clone.id;
+            delete clone.idMap;
+            delete clone.active;
+            return clone;
+        });
+        const [doc] = docs;
+        const data = { version, docs };
+        const json = JSON.stringify(data, null, 2);
+        const blob = new Blob([json], { type: 'octet/stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        let filename = '所有画布.svgboard.json';
+        if (doc) {
+            filename = doc.name;
+            if (docs.length > 1) {
+                filename += `等${docs.length}个画布`;
+            }
+            filename += '.svgboard.json';
+        }
+        a.href = url;
+        a.download = filename;
+        a.click();
     }
 }
 
 interface DocTabProps {
     doc: Doc;
+    only: boolean;
     onOpen: (id: string) => void;
     onDelete: (id: string) => void;
     onRename: (id: string, name: string) => void;
@@ -118,12 +191,14 @@ class DocTab extends React.Component<DocTabProps, any> {
 
     render() {
         const { confirming, renaming, newDocName } = this.state;
-        const { doc, onOpen, onDelete } = this.props;
+        const { doc, only, onOpen, onDelete } = this.props;
         return (
-            <li className={classnames('tab', { confirming, active: doc.active, renaming })}
-                onClick={e => { e.stopPropagation(); onOpen(doc.id)} }
-                onDoubleClick={e => this.rename(e)}>
-                <div className="doc-item-wrapper">
+            <li className={classnames('tab', { confirming, active: doc.active, renaming, only })}
+                onClick={e => { e.stopPropagation(); onOpen(doc.id)} }>
+                <div
+                    className="doc-item-wrapper"
+                    onDoubleClick={e => this.rename(e)}
+                    >
                     { renaming ?
                     <input className="doc-rename"
                         ref={input => this.renameInput = input}
@@ -136,14 +211,16 @@ class DocTab extends React.Component<DocTabProps, any> {
                     </span>
                     }
                 </div>
-                <a className="delete" onClick={e => {
-                    e.stopPropagation();
-                    this.setState({ confirming: true }); 
-                }}>X</a>
+                <a className="delete" 
+                    onClick={e => {
+                        e.stopPropagation();
+                        this.setState({ confirming: true }); 
+                    }}
+                >X</a>
                 <a className="delete-confirm" onClick={e => {
                     e.stopPropagation();
-                    onDelete(doc.id);
                     this.setState({ confirming: false });
+                    onDelete(doc.id);
                 }}>删除</a>
             </li>
         );
@@ -182,6 +259,5 @@ class DocTab extends React.Component<DocTabProps, any> {
         if (e.keyCode == 27) {
             this.setState({ renaming: false });
         }
-        //this.setState({ renaming: false, switching: false });
     }
 }

@@ -98,6 +98,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
                 docIds.push('default');
             }
             activeDocId = nextActiveDocId;
+            resetActiveDoc();
         }
         break;
     
@@ -132,7 +133,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
             drawing.id += idMap[drawing.id] ? ++idMap[drawing.id] : (idMap[drawing.id] = 1);
             drawingList = [...drawingList, drawing];
             params = [];
-            mode = "idle";
+            //mode = "idle";
             selectedDrawingId = drawing.id;
         }
         break;
