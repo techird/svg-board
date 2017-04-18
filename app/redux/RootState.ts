@@ -36,7 +36,8 @@ export const initialRootState: RootState = {
         default: {
             name: '默认',
             drawingList: [],
-            idMap: { p: 0, d: 0, l: 0, v: 0 }
+            idMap: { p: 0, d: 0, l: 0, v: 0 },
+            attributes: {}
         }
     },
     ui: {

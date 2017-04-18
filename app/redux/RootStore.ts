@@ -5,7 +5,8 @@ import { createStore } from "./createStore";
 
 export function configStore() {
 
-    const store = createStore(rootReducer);
+    const DEV_TOOL = '__REDUX_DEVTOOLS_EXTENSION__';
+    const store = createStore(rootReducer, window[DEV_TOOL] && window[DEV_TOOL]());
 
     // hot reloading
     if (module.hot) {

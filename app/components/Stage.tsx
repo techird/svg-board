@@ -1,7 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 import * as classnames from "classnames";
-import { Drawing, StaticPoint, DynamicPoint, Line, Path, Doc } from "../models";
+import { HotKeys } from "react-hotkeys";
+import { Drawing, StaticPoint, DynamicPoint, Line, Path, Doc, getAttributeWithDefault, DrawingAttributeMap } from "../models";
+import { Toolbar } from "./Toolbar";
 import { RootState, UIState, actions } from "../redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
@@ -12,6 +14,8 @@ const MOUSE_BUTTON_RIGHT = 2;
 
 interface StageProps {
     drawings: Drawing[];
+    selectedDrawingId: string;
+    attributes: DrawingAttributeMap;
     ui: UIState;
     actions?: typeof actions.ui;
 }
@@ -20,6 +24,8 @@ interface StageProps {
     function mapStateToProps(state: RootState) {
         return {
             drawings: state.docs[state.activeDocId].drawingList,
+            selectedDrawingId: state.ui.selectedDrawingId,
+            attributes: state.docs[state.activeDocId].attributes || {},
             ui: state.ui,
         };
     },
@@ -61,39 +67,55 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         const { dragging, offsetLeft, offsetTop } = this.state;
 
         return (
-            <div 
-                className="stage-container" 
+            <div
+                ref={div => this.containerNode = div}
+                className={classnames("stage-container", "mode-" + mode)}
                 onMouseDown={e => this.handleMouseDown(e)} 
                 onMouseMove={e => this.handleMouseMove(e)}
-                onContextMenu={e => e.preventDefault()} 
+                onContextMenu={e => e.preventDefault()}
                 onDoubleClick={() => this.view.reset()}>
-                <svg className="stage" width={this.state.width} height={this.state.height} viewBox={this.generateViewBox()}>
-                    <defs>
-                        <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse">
-                            <rect width="100" height="100" fill="#F6F6F6"></rect>
-                            <rect width="100" height="100" x="100" y="100" fill="#F6F6F6"></rect>
-                        </pattern>
-                    </defs>
+                <HotKeys handlers={this.keyHandlers}>
+                    <svg ref={svg => this.svgNode = svg as SVGSVGElement} className="stage" width={this.state.width} height={this.state.height} viewBox={this.generateViewBox()}>
+                        <defs>
+                            <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse">
+                                <rect width="100" height="100" fill="#F6F6F6"></rect>
+                                <rect width="100" height="100" x="100" y="100" fill="#F6F6F6"></rect>
+                            </pattern>
+                        </defs>
 
-                    <g className={classnames("view", { dragging })} transform={`translate(${-offsetLeft}, ${-offsetTop})`}>
-                        <rect x="-10000000.5" y="-10000000.5" width="20000000" height="20000000" fill="url(#grid)"></rect>
+                        <g className={classnames("view", { dragging })} transform={`translate(${-offsetLeft}, ${-offsetTop})`}>
+                            <rect className="grid" x="-10000000.5" y="-10000000.5" width="20000000" height="20000000" fill="url(#grid)"></rect>
 
-                        <path d="M -10000000 0.5 L 10000000 0.5 M 0.5 -10000000 L 0.5 10000000" fill="none" stroke="#007ACC" strokeWidth="2" />
+                            <path className="axis" d="M -10000000 0.5 L 10000000 0.5 M 0.5 -10000000 L 0.5 10000000" fill="none" stroke="#999" strokeWidth="1" />
 
-                        { mode == "p" &&
-                            <circle className="interactive-point" cx={this.state.mouseX} cy={this.state.mouseY} r="10" fill="orange" opacity="0.5" />
-                        }
-                        { drawings.slice().reverse().map(drawing => this.renderDrawing(drawing)) }
-                    </g>
-                </svg>
+                            { mode == "p" &&
+                                <circle className="interactive-point" cx={this.state.mouseX} cy={this.state.mouseY} r="10" fill="orange" opacity="0.5" />
+                            }
+                            { drawings.slice().reverse().map(drawing => this.renderDrawing(drawing)) }
+                        </g>
+                    </svg>
+                    <Toolbar />
+                </HotKeys>
             </div>
         );
     }
 
-    componentDidMount() {
-        this.containerNode = ReactDOM.findDOMNode(this) as HTMLDivElement;
-        this.svgNode = this.containerNode.children.item(0) as SVGSVGElement;
+    get keyHandlers() {
+        const { start, clear, deleteDrawing } = this.actions;
+        const { selectedDrawingId } = this.props;
+        return {
+            'esc': () => start('idle'),
+            'p': () => start('p'),
+            'd': () => start('d'),
+            'l': () => start('l'),
+            'v': () => start('v'),
+            'c': () => confirm('清空画布？') && clear(),
+            'del': () => selectedDrawingId && deleteDrawing(selectedDrawingId, false),
+            'shift+del': () => selectedDrawingId && deleteDrawing(selectedDrawingId, true),
+        }
+    }
 
+    componentDidMount() {
         const updateSize = () => {
             const { clientWidth: width, clientHeight: height } = this.containerNode;
             this.setState({ width, height });
@@ -101,12 +123,16 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         updateSize();
         window.addEventListener('resize', updateSize);
         window.addEventListener('mouseup', () => this.handleMouseUp());
-    }  
+    }
 
     private renderDrawing(drawing: Drawing) {
-        const className = classnames(`drawing-${drawing.type}`, { 
-            interactive: this.interact.isActived(drawing),
-            selected: this.props.ui.selectedDrawingId == drawing.id
+        const { attributes } = this.props;
+        const attribute = getAttributeWithDefault(drawing, attributes[drawing.id]);
+        const className = classnames(`drawing drawing-${drawing.type}`, { 
+            'interactive': this.interact.isActived(drawing),
+            'selected': this.props.ui.selectedDrawingId == drawing.id,
+            'visible': attribute.visible,
+            'track-visible': attribute.trackVisible
         });
         return (
             <g key={drawing.id} className={className}>
@@ -182,9 +208,11 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
     private view = {
         dragging: false,
         dragPosition: { x: 0, y: 0 },
+        moved: false,
         dragStart: (x: number, y: number) => {
             this.view.dragging = true
             this.view.dragPosition = { x, y };
+            this.view.moved = false;
             this.setState({ dragging: true });
         },
         dragMove: (x: number, y: number) => {
@@ -197,8 +225,12 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
                 offsetTop: this.state.offsetTop - dy
             });
             this.view.dragPosition = { x, y };
+            this.view.moved = true;
         },
         dragEnd: () => {
+            if (this.view.dragging && !this.view.moved) {
+               this.actions.start('idle');
+            }
             this.view.dragging = false;
             this.setState({ dragging: false });
         },

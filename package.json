@@ -27,6 +27,7 @@
     "react-click-outside": "^2.3.0",
     "react-dom": "^15.4.2",
     "react-hot-loader": "next",
+    "react-hotkeys": "^0.9.0",
     "react-redux": "^5.0.2",
     "react-scrollbar": "^0.5.1",
     "redux": "^3.6.0",

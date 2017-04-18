@@ -1,5 +1,5 @@
 @header-height: 40px;
-@side-width: 180px;
+@side-width: 240px;
 @object-property-height: 300px;
 @status-bar-height: 24px;
 @theme-color: rgb(0, 122, 204);
@@ -273,8 +273,8 @@
 
 .toolbar {
     @space: 10px;
-    @top: @header-height + @space;
-    @left: @side-width + @space;
+    @top: @space;
+    @left: @space;
 
     .dock(@top, auto, auto, @left);
 
@@ -294,7 +294,8 @@
             background: @hover-color;
         }
         &.active {
-            background: @active-color;
+            background: darkorange;
+            color: black;
         }
         &:active {
             background: black;
@@ -313,9 +314,11 @@
 .object-browser {
     .dock(@header-height, auto, @object-property-height + @status-bar-height, 0);
     width: @side-width;
-
     .panel {
         padding: 0;
+        &.scrollarea {
+            .dock(25px, 0, 5px, 0);
+        }
     }
 
     .object-list {
@@ -329,12 +332,11 @@
                 font-size: 14px;
                 height: 24px;
                 padding: 2px;
+                padding-left: 20px;
 
                 box-sizing: border-box;
                 cursor: default;
-                &:last-child {
-                    border-bottom: none;
-                }
+                position: relative;
                 &:hover {
                     background: @hover-color
                 }
@@ -366,18 +368,41 @@
                         display: block;
                     }
                 }
-                &.dynamic-point .icon {
+                &.d .icon {
                     border-radius: 100%;
                     background: orange;
                     &:after {
                         content: '动';
+                        color: black;
                     }
                 }
-                &.path .icon {
+                &.v .icon {
                     background: green;
                     border-radius: 5px;
                     &:after {
                         content: '路';
+                    }
+                }
+                .visibility {
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    width: 16px;
+                    height: 16px;
+                    top: 4px;
+                    right: 10px;
+                    text-align: center;
+                    cursor: pointer;
+                    i {
+                        line-height: 16px;
+                        font-size: 12px;
+                        opacity: 0.1;
+                    }
+                    &.visible i {
+                        opacity: 1;
+                    }
+                    &.track-visible i {
+                        color: orange;
                     }
                 }
             }
@@ -414,6 +439,9 @@
     .dock(@header-height, 0, @status-bar-height, @side-width);
     user-select: none;
     -webkit-user-select: none;
+    & > div[tabindex] {
+        outline: none;
+    }
 }
 
 .status-bar {
@@ -571,25 +599,36 @@
         }
     }
 
+    .grid, .axis {
+        pointer-events: none;
+    }
+
     text {
         font-size: 12px;
         fill: #666;
         pointer-events: none;
     }
 
+    .drawing {
+        opacity: 0;
+        transition: opacity .1s ease;
+        &.visible {
+            opacity: 1;
+        }
+        &.interactive {
+            circle, text {
+                fill: red;
+                transform: scale(2);
+                cursor: pointer;
+            }
+        }
+    }
+
     .drawing-p {
         circle {
             .hover-scale;
-            fill: #666;
+            fill: black;
             cursor: move;
-        }
-        &.interactive {
-            circle {
-                fill: darkorange;
-            }
-            text {
-                fill: darkorange;
-            }
         }
         &.selected {
             circle, text {
@@ -602,6 +641,7 @@
         circle {
             .hover-scale;
             fill: orange;
+            cursor: pointer;
         }
         path {
             stroke: orange;
@@ -614,7 +654,7 @@
         text {
             fill: orange;
         }
-        &:hover, &.selected, .show-track {
+        &:hover, &.selected, .show-track, &.track-visible {
             path {
                 opacity: 1;
             }

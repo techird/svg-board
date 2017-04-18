@@ -1,6 +1,6 @@
 import * as uuid from "uuid";
 import { Action, handleActions } from "redux-actions";
-import { Drawing, DrawingType, createStaticPoint, createDynamicPoint, createLine, createPath, Doc } from "../models";
+import { Drawing, DrawingType, createStaticPoint, createDynamicPoint, createLine, createPath, Doc, DrawingAttribute } from "../models";
 import { UIMode, RootState, initialRootState } from "./RootState";
 import * as ActionType from "./ActionTypes";
 import { combineReducers } from "./combineReducers";
@@ -35,8 +35,12 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
     rootState = rootState || initialRootState;
 
     let { activeDocId, docIds, docs, ui } = rootState;
-    let { drawingList, idMap, name } = docs[activeDocId];
+    let { drawingList, idMap, name, attributes } = docs[activeDocId];
     let { mode, params, tween, selectedDrawingId, showAllTrack } = ui;
+
+    docs = docs || {};
+    idMap = idMap || {};
+    attributes = attributes || {};
 
     const resetUI = () => {
         mode = 'idle';
@@ -49,6 +53,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
         drawingList = doc.drawingList;
         idMap = doc.idMap;
         name = doc.name;
+        attributes = doc.attributes;
         resetUI();
     }
 
@@ -59,6 +64,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
         name = payload.name;
         drawingList = [];
         idMap = {};
+        attributes = {};
         docIds.push(activeDocId);
         resetUI();
         break;
@@ -76,6 +82,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
         name = doc.name;
         drawingList = doc.drawingList;
         idMap = doc.idMap;
+        attributes = doc.attributes;
         docIds.push(activeDocId);
         resetUI();
         break;
@@ -95,6 +102,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
                 name = '默认';
                 drawingList = [];
                 idMap = {};
+                attributes = {};
                 docIds.push('default');
             }
             activeDocId = nextActiveDocId;
@@ -116,6 +124,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
     case ActionType.CLEAR_CANVAS:
         drawingList = [];
         idMap = {};
+        attributes = {};
         resetUI();
         break;
     
@@ -133,7 +142,10 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
             drawing.id += idMap[drawing.id] ? ++idMap[drawing.id] : (idMap[drawing.id] = 1);
             drawingList = [...drawingList, drawing];
             params = [];
-            //mode = "idle";
+            // 静态点允许连续绘制
+            if (mode != 'p') {
+                mode = "idle";
+            }
             selectedDrawingId = drawing.id;
         }
         break;
@@ -155,6 +167,45 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
         }
         break;
 
+    // 删除指定图形
+    case ActionType.DELETE_DRAWING:
+        const { drawingId: deleteDrawingId, recursive } = payload;
+        const calculateDeleteSet = (deleteId: string) => {
+            let set = [deleteId];
+            if (recursive) {
+                const deps = drawingList.filter(x => {
+                    switch(x.type) {
+                        case 'd':
+                        case 'l':
+                            return x.from == deleteId || x.to == deleteId;
+                    }
+                }).map(x => x.id);
+                set = [deleteId, ...deps];
+                deps.map(x => calculateDeleteSet(x)).forEach(deep => set = [...set, ...deep]);
+            }
+            return set;
+        };
+        const deleteSet = calculateDeleteSet(deleteDrawingId);
+        drawingList = drawingList.filter(x => deleteSet.indexOf(x.id) == -1);
+        if (deleteSet.indexOf(selectedDrawingId) > -1) {
+            selectedDrawingId = null;
+        }
+        break;
+
+    // 更新图形属性
+    case ActionType.UPDATE_ATTRIBUTE:
+        const drawingId: string = payload.drawingId;
+        const attribute: DrawingAttribute = payload.attribute;
+        attributes = attributes || {}
+        attributes = {
+            ...attributes,
+            [drawingId]: {
+                ...(attributes[drawingId] || {}),
+                ...attribute,
+            }
+        };
+        break;
+
     // 更新补间位置
     case ActionType.UPDATE_TWEEN:
         tween = payload;
@@ -174,6 +225,7 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
             name,
             drawingList,
             idMap,
+            attributes,
         }},
         ui: {
             mode,
