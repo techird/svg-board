@@ -8,11 +8,21 @@ import App from "./app";
 const reactRoot = document.getElementById('container');
 
 ReactDOM.render(
-    <AppContainer>
+    <AppContainer errorReporter={ErrorReporter}>
         <App />
     </AppContainer>, 
     reactRoot
 );
+
+function ErrorReporter({ error }) {
+    console.log(error);
+    return (
+        <div>
+            <h1>{error.message}</h1>
+            <pre>{error.stack}</pre>
+        </div>
+    )
+}
 
 if (module.hot) {
     module.hot.accept("./app", () => {

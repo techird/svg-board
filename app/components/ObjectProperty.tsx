@@ -1,13 +1,16 @@
 import * as React from "react";
 import * as classnames from "classnames";
-import { RootState, isStaticPoint, isDynamicPoint, isLine, isPath } from "../models";
-import { interactActions } from "../actions/interactActions";
+import { Drawing } from "../models";
+import { RootState, UIState, actions } from "../redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 import { getPointPosition, resolvePathString } from "../helpers";
 
-interface ObjectPropertyProps extends RootState {
-    interactActions?: typeof interactActions
+interface ObjectPropertyProps {
+    drawings: Drawing[];
+    selected: string;
+    ui: UIState;
+    actions: typeof actions.ui;
 }
 
 const keys = {
@@ -17,40 +20,46 @@ const keys = {
 
 @connect(
     function mapStateToProps(state: RootState) {
-        return state;
+        return {
+            drawings: state.docs[state.activeDocId].drawingList,
+            selected: state.ui.selectedDrawingId,
+            ui: state.ui
+        };
     },
     function mapDispatchToProps(dispatch) {
         return {
-            interactActions: bindActionCreators(interactActions, dispatch)
+            actions: bindActionCreators(actions.ui, dispatch)
         };
     }
 )
 export class ObjectProperty extends React.Component<Partial<ObjectPropertyProps>, any> {
     render() {
-        const { selectedDrawingId, drawingList, tween } = this.props;
-        const drawing = selectedDrawingId ? drawingList.find(x => x.id == selectedDrawingId) : null;
+        const { selected, drawings, ui: { tween } } = this.props;
+        const drawing = selected ? drawings.find(x => x.id == selected) : null;
         return (
             <div className="object-property">
+                <h2>属性</h2>
+                <div className="panel">
                 { !drawing &&
                     <div>点击对象选中，右键拖动画布</div>
                 }
-                { isStaticPoint(drawing) &&
+                { drawing && drawing.type == 'p' &&
                     <div>静态点 <strong>{drawing.id}</strong>，位置 ({drawing.x}, {drawing.y})</div>
                 }
-                { isDynamicPoint(drawing) &&
-                    <div>轨迹点 <strong>{drawing.id}</strong>，从 {drawing.from} 到 {drawing.to}，当前位置 ({getPointPosition(drawing.id, drawingList, tween).join(', ')})</div>
+                { drawing && drawing.type == 'd' &&
+                    <div>轨迹点 <strong>{drawing.id}</strong>，从 {drawing.from} 到 {drawing.to}，当前位置 ({getPointPosition(drawing.id, drawings, tween).join(', ')})</div>
                 }
-                { isPath(drawing) &&
+                { drawing && drawing.type == 'v' &&
                     <div className="path-wrapper">
-                        <div>路径 <strong>{drawing.id}</strong>，d = "{resolvePathString(drawing, drawingList, tween, true)}"</div>
+                        <div>路径 <strong>{drawing.id}</strong>，d = "{resolvePathString(drawing, drawings, tween, true)}"</div>
                         <textarea 
                             className={classnames({ 
-                                error: !resolvePathString(drawing, drawingList, tween)
+                                error: !resolvePathString(drawing, drawings, tween)
                             })} 
                             value={drawing.data} 
                             onChange={e => {
                                 drawing.data = e.target.value;
-                                this.props.interactActions.updateDrawing(drawing);
+                                this.props.actions.updateDrawing(drawing);
                             }}
                             onKeyDown={e => {
                                 if (!keys[e.keyCode]) return;
@@ -80,7 +89,7 @@ export class ObjectProperty extends React.Component<Partial<ObjectPropertyProps>
                                 parts[1] = number;
 
                                 drawing.data = parts.join('');
-                                this.props.interactActions.updateDrawing(drawing);
+                                this.props.actions.updateDrawing(drawing);
                                 end = start + number.length
                                 setImmediate(() => {
                                     textArea.setSelectionRange(start, end);
@@ -89,6 +98,7 @@ export class ObjectProperty extends React.Component<Partial<ObjectPropertyProps>
                         }></textarea>
                     </div>
                 }
+                </div>
             </div>
         );
     }

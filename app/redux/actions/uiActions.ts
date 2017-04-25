@@ -1,43 +1,51 @@
-import { Dispatch, Action } from "redux";
-import * as ActionTypes from "../constants/ActionTypes";
-import { 
-    Drawing, 
-    StaticPoint, 
-    DynamicPoint, 
-    Line, 
-    Path, 
-    InteractiveMode,
-    createStaticPoint,
-    RootState 
-} from "../models";
+import * as ActionTypes from "../ActionTypes";
+import { UIMode } from "../RootState";
+import { Drawing, DrawingAttribute } from "../../models";
 
-export const interactActions = {
-    start(mode: InteractiveMode) {
+export default {
+    start(type: UIMode) {
         return {
             type: ActionTypes.INTERACT_START,
-            payload: mode
-        }
+            payload: type
+        };
     },
 
     next(...params) {
         return {
             type: ActionTypes.INTERACT_NEXT,
             payload: params
-        }
+        };
     },
 
     selectDrawing(drawingId: string) {
         return {
             type: ActionTypes.SELECT_DRAWING,
             payload: drawingId
-        }
+        };
     },
 
     updateDrawing(drawing: Drawing) {
         return {
             type: ActionTypes.UPDATE_DRAWING,
             payload: drawing
-        }
+        };
+    },
+
+    updateAttribute(drawingId: string, attribute: Partial<DrawingAttribute>) {
+        return {
+            type: ActionTypes.UPDATE_ATTRIBUTE,
+            payload: {
+                drawingId,
+                attribute
+            }
+        };
+    },
+
+    deleteDrawing(drawingId: string, recursive: boolean) {
+        return {
+            type: ActionTypes.DELETE_DRAWING,
+            payload: { drawingId, recursive }
+        };
     },
 
     updateTween(tween: number) {
@@ -55,6 +63,6 @@ export const interactActions = {
     },
 
     clear() {
-        return { type: ActionTypes.CLEAR_ALL };
+        return { type: ActionTypes.CLEAR_CANVAS };
     }
 };

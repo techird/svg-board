@@ -1,4 +1,4 @@
-import { Drawing, isPath, isStaticPoint, isDynamicPoint, Path } from "../models";
+import { Drawing, Path } from "../models";
 import { getPointPosition } from "./getPointPosition";
 
 type Tuple = [number, number];
@@ -7,7 +7,7 @@ export function resolvePathString(path: Path, drawings: Drawing[], t: number, fo
     let isInvalidVariable = false;
     const pathString = path.data.replace(/\{\s*(\w+)\s*\}/g, (match, $1) => {
         const drawing = drawings.find(x => x.id == $1);
-        if (isStaticPoint(drawing) || isDynamicPoint(drawing)) {
+        if (drawing && (drawing.type == 'p' || drawing.type == 'd')) {
             return getPointPosition(drawing.id, drawings, t).join(' ');
         }
         isInvalidVariable = true;
