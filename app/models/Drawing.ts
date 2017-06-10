@@ -8,6 +8,8 @@
  */
 export type DrawingType = "p" | "d" | "l" | "v";
 
+export type OffsetDirection = "left" | "right" | "up" | "down";
+
 export interface DrawingBase {
     id: string;
 }

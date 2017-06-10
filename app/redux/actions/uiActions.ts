@@ -1,6 +1,6 @@
 import * as ActionTypes from "../ActionTypes";
 import { UIMode } from "../RootState";
-import { Drawing, DrawingAttribute } from "../../models";
+import { Drawing, DrawingAttribute, OffsetDirection } from "../../models";
 
 export default {
     start(type: UIMode) {
@@ -45,6 +45,13 @@ export default {
         return {
             type: ActionTypes.DELETE_DRAWING,
             payload: { drawingId, recursive }
+        };
+    },
+
+    offset(drawingId: string, direction: OffsetDirection) {
+        return {
+            type: ActionTypes.OFFSET_DRAWING,
+            payload: { drawingId, direction }
         };
     },
 
