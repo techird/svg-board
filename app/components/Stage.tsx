@@ -65,7 +65,9 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
         const drawings = this.drawings;
         const { mode, params } = this.ui;
         const { dragging, offsetLeft, offsetTop } = this.state;
-
+        const keyMap = {  
+            'deleteNode': ['del', 'backspace'],
+        };
         return (
             <div
                 ref={div => this.containerNode = div}
@@ -74,7 +76,7 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
                 onMouseMove={e => this.handleMouseMove(e)}
                 onContextMenu={e => e.preventDefault()}
                 onDoubleClick={() => this.view.reset()}>
-                <HotKeys handlers={this.keyHandlers}>
+                <HotKeys keyMap={keyMap} handlers={this.keyHandlers}>
                     <svg ref={svg => this.svgNode = svg as SVGSVGElement} className="stage" width={this.state.width} height={this.state.height} viewBox={this.generateViewBox()}>
                         <defs>
                             <pattern id="grid" width="200" height="200" patternUnits="userSpaceOnUse" patternContentUnits="userSpaceOnUse">
@@ -101,8 +103,9 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
     }
 
     get keyHandlers() {
-        const { start, clear, deleteDrawing } = this.actions;
+        const { start, clear, deleteDrawing, offset } = this.actions;
         const { selectedDrawingId } = this.props;
+
         return {
             'esc': () => start('idle'),
             'p': () => start('p'),
@@ -110,8 +113,12 @@ export class Stage extends React.Component<Partial<StageProps>, any> {
             'l': () => start('l'),
             'v': () => start('v'),
             'c': () => confirm('清空画布？') && clear(),
-            'del': () => selectedDrawingId && deleteDrawing(selectedDrawingId, false),
+            'deleteNode': () => selectedDrawingId && deleteDrawing(selectedDrawingId, false),
             'shift+del': () => selectedDrawingId && deleteDrawing(selectedDrawingId, true),
+            'left': () => offset(selectedDrawingId, 'left'),
+            'right': () => offset(selectedDrawingId, 'right'),
+            'up': () => offset(selectedDrawingId, 'up'),
+            'down': () => offset(selectedDrawingId, 'down'),
         }
     }
 

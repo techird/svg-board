@@ -1,6 +1,6 @@
 import * as uuid from "uuid";
 import { Action, handleActions } from "redux-actions";
-import { Drawing, DrawingType, createStaticPoint, createDynamicPoint, createLine, createPath, Doc, DrawingAttribute } from "../models";
+import { Drawing, DrawingType, createStaticPoint, createDynamicPoint, createLine, createPath, Doc, DrawingAttribute, OffsetDirection } from "../models";
 import { UIMode, RootState, initialRootState } from "./RootState";
 import * as ActionType from "./ActionTypes";
 import { combineReducers } from "./combineReducers";
@@ -205,6 +205,27 @@ export function rootReducer(rootState: RootState, { type, payload }: Action<any>
             }
         };
         break;
+
+    // 微调图形位置
+    case ActionType.OFFSET_DRAWING: {
+        const drawingId: string = payload.drawingId;
+        const direction: OffsetDirection = payload.direction;
+        const offsetPoints = {
+            'up': [0, -1],
+            'left': [-1, 0],
+            'right': [+1, 0],
+            'down': [0, +1],
+        };
+        const offsetDrawingIndex = drawingList.findIndex(x => x.id === drawingId);
+        if (offsetDrawingIndex > -1) {
+            let targetDrawing = drawingList[offsetDrawingIndex];
+            if (targetDrawing.type === 'p') {
+                targetDrawing.x += offsetPoints[direction][0];
+                targetDrawing.y += offsetPoints[direction][1];
+            }
+        }
+        break;
+    }
 
     // 更新补间位置
     case ActionType.UPDATE_TWEEN:
